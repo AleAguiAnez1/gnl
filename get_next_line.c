@@ -6,7 +6,7 @@
 /*   By: alaguirr <alaguirr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 12:25:36 by alaguirr          #+#    #+#             */
-/*   Updated: 2024/02/12 21:03:43 by alaguirr         ###   ########.fr       */
+/*   Updated: 2024/02/12 21:28:20 by alaguirr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ char	*ft_strdup(const char *s1)
 char	*extract_line(char **buffer)
 {
 	char	*line;
-	char	*new_buffer;
 	size_t	line_length;
 
 	line_length = 0;
@@ -37,14 +36,13 @@ char	*extract_line(char **buffer)
 	if ((*buffer)[line_length] == '\n')
 		line_length++;
 	line = ft_substr(*buffer, 0, line_length);
-	new_buffer = ft_strdup(*buffer + line_length);
-	free(*buffer);
-	*buffer = new_buffer;
-	if (**buffer == '\0')
+	if (!line)
 	{
 		free(*buffer);
 		*buffer = NULL;
+		return (NULL);
 	}
+	update_buffer(buffer, line_length);
 	return (line);
 }
 

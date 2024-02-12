@@ -6,7 +6,7 @@
 /*   By: alaguirr <alaguirr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 09:31:08 by alaguirr          #+#    #+#             */
-/*   Updated: 2024/02/12 20:59:35 by alaguirr         ###   ########.fr       */
+/*   Updated: 2024/02/12 21:33:53 by alaguirr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,28 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	}
 	substr[i] = '\0';
 	return (substr);
+}
+
+void	update_buffer(char **buffer, size_t line_length)
+{
+	char	*new_buffer;
+
+	new_buffer = ft_strdup(*buffer + line_length);
+	if (!new_buffer)
+	{
+		free(*buffer);
+		*buffer = NULL;
+	}
+	else
+	{
+		free(*buffer);
+		*buffer = new_buffer;
+		if (**buffer == '\0')
+		{
+			free(*buffer);
+			*buffer = NULL;
+		}
+	}
 }
 
 char	*ft_strchr(const char *s, int c)
