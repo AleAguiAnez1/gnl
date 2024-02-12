@@ -6,7 +6,7 @@
 /*   By: alaguirr <alaguirr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 12:34:13 by alaguirr          #+#    #+#             */
-/*   Updated: 2024/02/12 19:15:04 by alaguirr         ###   ########.fr       */
+/*   Updated: 2024/02/12 21:04:43 by alaguirr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,4 +30,3 @@ void		*ft_memcpy(void *dst, const void *src, size_t n);
 char		*get_next_line(int fd);
 
 #endif
-

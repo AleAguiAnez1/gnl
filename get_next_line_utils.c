@@ -6,7 +6,7 @@
 /*   By: alaguirr <alaguirr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 09:31:08 by alaguirr          #+#    #+#             */
-/*   Updated: 2024/02/12 19:19:19 by alaguirr         ###   ########.fr       */
+/*   Updated: 2024/02/12 20:59:35 by alaguirr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (str);
 }
 
-
 char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
 	char	*substr;
@@ -76,4 +75,3 @@ char	*ft_strchr(const char *s, int c)
 	}
 	return (NULL);
 }
-
