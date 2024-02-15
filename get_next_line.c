@@ -6,7 +6,7 @@
 /*   By: alaguirr <alaguirr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 12:25:36 by alaguirr          #+#    #+#             */
-/*   Updated: 2024/02/15 09:54:26 by alaguirr         ###   ########.fr       */
+/*   Updated: 2024/02/15 11:33:15 by alaguirr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,21 +58,13 @@ static char	*read_and_update_buffer(int fd, char **buffer)
 		temp_buf[bytes_read] = '\0';
 		temp = ft_strjoin(buffer, temp_buf);
 		if (!temp)
-		{
-			free(temp_buf);
-			return (NULL);
-		}
+			return (free(temp_buf), NULL);
 		*buffer = temp;
 		if (ft_strchr(temp_buf, '\n'))
 			break ;
 		bytes_read = read(fd, temp_buf, BUFFER_SIZE);
 	}
-	if (bytes_read < 0)
-	{
-		free(*buffer);
-		*buffer = NULL;
-	}
-	else if (!*buffer || **buffer == '\0')
+	if (bytes_read < 0 || !*buffer || **buffer == '\0')
 	{
 		free(*buffer);
 		*buffer = NULL;
