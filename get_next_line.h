@@ -6,7 +6,7 @@
 /*   By: alaguirr <alaguirr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 12:34:13 by alaguirr          #+#    #+#             */
-/*   Updated: 2024/02/12 21:35:43 by alaguirr         ###   ########.fr       */
+/*   Updated: 2024/02/15 09:17:19 by alaguirr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@
 # endif
 
 size_t	ft_strlen(const char *str);
-char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_strjoin(char **buffer, const char *s2);
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 char	*ft_strchr(const char *s, int c);
 char	*ft_strdup(const char *s1);

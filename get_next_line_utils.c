@@ -6,7 +6,7 @@
 /*   By: alaguirr <alaguirr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 09:31:08 by alaguirr          #+#    #+#             */
-/*   Updated: 2024/02/12 21:33:53 by alaguirr         ###   ########.fr       */
+/*   Updated: 2024/02/15 09:31:38 by alaguirr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,25 +22,27 @@ size_t	ft_strlen(const char *s)
 	return (i);
 }
 
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char **buffer, const char *s2)
 {
 	char	*str;
 	size_t	len;
 	size_t	i;
 
-	if (!s1 || !s2)
-		return (NULL);
-	len = ft_strlen(s1) + ft_strlen(s2);
-	str = malloc(sizeof(char) * (len + 1));
+	if (!*buffer)
+		*buffer = ft_strdup("");
+	len = ft_strlen(*buffer) + ft_strlen(s2) + 1;
+	str = malloc(len);
 	if (!str)
 		return (NULL);
-	i = 0;
-	while (*s1)
-		str[i++] = *s1++;
+	i = -1;
+	while ((*buffer)[++i])
+		str[i] = (*buffer)[i];
 	while (*s2)
 		str[i++] = *s2++;
 	str[i] = '\0';
-	return (str);
+	free(*buffer);
+	*buffer = str;
+	return (*buffer);
 }
 
 char	*ft_substr(char const *s, unsigned int start, size_t len)
@@ -70,20 +72,12 @@ void	update_buffer(char **buffer, size_t line_length)
 	char	*new_buffer;
 
 	new_buffer = ft_strdup(*buffer + line_length);
-	if (!new_buffer)
+	free(*buffer);
+	*buffer = new_buffer;
+	if (!*buffer || **buffer == '\0')
 	{
 		free(*buffer);
 		*buffer = NULL;
-	}
-	else
-	{
-		free(*buffer);
-		*buffer = new_buffer;
-		if (**buffer == '\0')
-		{
-			free(*buffer);
-			*buffer = NULL;
-		}
 	}
 }
 

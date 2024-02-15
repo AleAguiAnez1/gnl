@@ -6,122 +6,118 @@
 /*   By: alaguirr <alaguirr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 17:59:32 by alaguirr          #+#    #+#             */
-/*   Updated: 2024/02/12 20:59:17 by alaguirr         ###   ########.fr       */
+/*   Updated: 2024/02/15 09:52:49 by alaguirr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
 
-t_fd_buffer	*find_or_add_fd(t_fd_buffer **head, int fd)
+char	*ft_strdup(const char *s1)
 {
-	t_fd_buffer	*temp;
-	t_fd_buffer	*prev;
-	t_fd_buffer	*new_node;
+	char	*copy;
+	size_t	len;
 
-	temp = *head;
-	prev = NULL;
-	while (temp)
-	{
-		if (temp->fd == fd)
-			return (temp);
-		prev = temp;
-		temp = temp->next;
-	}
-	new_node = (t_fd_buffer *)malloc(sizeof(t_fd_buffer));
-	if (!new_node)
+	len = ft_strlen(s1) + 1;
+	copy = malloc(len);
+	if (copy == NULL)
 		return (NULL);
-	new_node->fd = fd;
-	new_node->buffer = NULL;
-	if (!prev)
-		*head = new_node;
-	else
-		prev->next = new_node;
-	return (new_node);
+	ft_memcpy(copy, s1, len);
+	return (copy);
 }
 
-char	*extract_line_from_buffer(char **buffer)
+char	*extract_line(char **buffer)
 {
-	char	*line_end;
 	char	*line;
-	char	*new_buffer;
-	int		new_line_offset;
+	size_t	line_length;
 
-	line_end = ft_strchr(*buffer, '\n');
-	if (!line_end)
-		line_end = ft_strchr(*buffer, '\0');
-	if (*line_end == '\n')
-		new_line_offset = 1;
-	else
-		new_line_offset = 0;
-	line = ft_substr(*buffer, 0, line_end - *buffer + new_line_offset);
-	if (*(line_end + new_line_offset) != '\0')
+	line_length = 0;
+	while ((*buffer)[line_length] && (*buffer)[line_length] != '\n')
+		line_length++;
+	if ((*buffer)[line_length] == '\n')
+		line_length++;
+	line = ft_substr(*buffer, 0, line_length);
+	if (!line)
 	{
-		new_buffer = ft_strdup(line_end + new_line_offset);
 		free(*buffer);
-		*buffer = new_buffer;
+		*buffer = NULL;
+		return (NULL);
 	}
-	else
+	update_buffer(buffer, line_length);
+	return (line);
+}
+
+static char	*read_and_update_buffer(int fd, char **buffer)
+{
+	char	temp_buf[BUFFER_SIZE + 1];
+	int		bytes_read;
+	char	*temp;
+
+	bytes_read = read(fd, temp_buf, BUFFER_SIZE);
+	while (bytes_read > 0)
+	{
+		temp_buf[bytes_read] = '\0';
+		temp = ft_strjoin(buffer, temp_buf);
+		if (!temp)
+		{
+			free(temp_buf);
+			return (NULL);
+		}
+		*buffer = temp;
+		if (ft_strchr(temp_buf, '\n'))
+			break ;
+		bytes_read = read(fd, temp_buf, BUFFER_SIZE);
+	}
+	if (bytes_read < 0)
 	{
 		free(*buffer);
 		*buffer = NULL;
 	}
-	return (line);
-}
-
-static int	read_from_fd_and_update_buffer(t_fd_buffer *current_fd,
-		char *temp_buf)
-{
-	ssize_t	bytes_read;
-	char	*temp;
-
-	bytes_read = read(current_fd->fd, temp_buf, BUFFER_SIZE);
-	while (bytes_read > 0)
+	else if (!*buffer || **buffer == '\0')
 	{
-		temp_buf[bytes_read] = '\0';
-		if (!current_fd->buffer)
-			current_fd->buffer = ft_strdup(temp_buf);
-		else
-		{
-			temp = ft_strjoin(current_fd->buffer, temp_buf);
-			free(current_fd->buffer);
-			current_fd->buffer = temp;
-		}
-		if (ft_strchr(current_fd->buffer, '\n'))
-			break ;
-		bytes_read = read(current_fd->fd, temp_buf, BUFFER_SIZE);
+		free(*buffer);
+		*buffer = NULL;
 	}
-	if (bytes_read < 0)
-		return (-1);
-	else
-		return (0);
+	return (*buffer);
 }
 
-char	*read_and_update_buffer(t_fd_buffer *current_fd)
+void	*ft_memcpy(void *dst, const void *src, size_t n)
 {
-	int		read_status;
-	char	*temp_buf;
+	size_t				i;
+	unsigned char		*dest;
+	const unsigned char	*source;
 
-	temp_buf = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!temp_buf)
+	if (!dst && !src)
 		return (NULL);
-	read_status = read_from_fd_and_update_buffer(current_fd, temp_buf);
-	free(temp_buf);
-	if (read_status < 0)
-		return (NULL);
-	if (!current_fd->buffer || *current_fd->buffer == '\0')
-		return (NULL);
-	return (extract_line_from_buffer(&current_fd->buffer));
+	i = 0;
+	dest = (unsigned char *)dst;
+	source = (const unsigned char *)src;
+	while (i < n)
+	{
+		dest[i] = source[i];
+		i++;
+	}
+	return (dst);
 }
 
 char	*get_next_line(int fd)
 {
-	static t_fd_buffer	*head = NULL;
-	t_fd_buffer			*current_fd;
+	static char	*buffer[FD_SETSIZE];
+	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	current_fd = find_or_add_fd(&head, fd);
-	if (!current_fd)
+	if (!buffer[fd])
+		buffer[fd] = ft_strdup("");
+	buffer[fd] = read_and_update_buffer(fd, &buffer[fd]);
+	if (!buffer[fd] || *buffer[fd] == '\0')
+	{
+		if (buffer[fd] != NULL)
+		{
+			free(buffer[fd]);
+			buffer[fd] = NULL;
+		}
 		return (NULL);
-	return (read_and_update_buffer(current_fd));
+	}
+	line = extract_line(&buffer[fd]);
+	return (line);
 }

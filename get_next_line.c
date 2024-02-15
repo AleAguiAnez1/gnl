@@ -6,7 +6,7 @@
 /*   By: alaguirr <alaguirr@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/19 12:25:36 by alaguirr          #+#    #+#             */
-/*   Updated: 2024/02/12 21:28:20 by alaguirr         ###   ########.fr       */
+/*   Updated: 2024/02/15 09:54:26 by alaguirr         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,29 +48,35 @@ char	*extract_line(char **buffer)
 
 static char	*read_and_update_buffer(int fd, char **buffer)
 {
-	char	*temp_buf;
+	char	temp_buf[BUFFER_SIZE + 1];
 	int		bytes_read;
 	char	*temp;
 
-	temp_buf = malloc(BUFFER_SIZE + 1);
-	if (!temp_buf)
-		return (NULL);
 	bytes_read = read(fd, temp_buf, BUFFER_SIZE);
 	while (bytes_read > 0)
 	{
 		temp_buf[bytes_read] = '\0';
-		if (!*buffer)
-			*buffer = ft_strdup("");
-		temp = ft_strjoin(*buffer, temp_buf);
-		free(*buffer);
+		temp = ft_strjoin(buffer, temp_buf);
+		if (!temp)
+		{
+			free(temp_buf);
+			return (NULL);
+		}
 		*buffer = temp;
 		if (ft_strchr(temp_buf, '\n'))
 			break ;
 		bytes_read = read(fd, temp_buf, BUFFER_SIZE);
 	}
-	free(temp_buf);
 	if (bytes_read < 0)
-		return (NULL);
+	{
+		free(*buffer);
+		*buffer = NULL;
+	}
+	else if (!*buffer || **buffer == '\0')
+	{
+		free(*buffer);
+		*buffer = NULL;
+	}
 	return (*buffer);
 }
 
@@ -95,23 +101,23 @@ void	*ft_memcpy(void *dst, const void *src, size_t n)
 
 char	*get_next_line(int fd)
 {
-	static char	*buffer[FD_SETSIZE];
+	static char	*buffer;
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	if (!buffer[fd])
-		buffer[fd] = ft_strdup("");
-	buffer[fd] = read_and_update_buffer(fd, &buffer[fd]);
-	if (!buffer[fd] || *buffer[fd] == '\0')
+	if (!buffer)
+		buffer = ft_strdup("");
+	buffer = read_and_update_buffer(fd, &buffer);
+	if (!buffer || *buffer == '\0')
 	{
-		if (buffer[fd] != NULL)
+		if (buffer != NULL)
 		{
-			free(buffer[fd]);
-			buffer[fd] = NULL;
+			free(buffer);
+			buffer = NULL;
 		}
 		return (NULL);
 	}
-	line = extract_line(&buffer[fd]);
+	line = extract_line(&buffer);
 	return (line);
 }
